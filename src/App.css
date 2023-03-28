@@ -36,3 +36,27 @@
     transform: rotate(360deg);
   }
 }
+
+.footer{
+    position: fixed;
+    bottom: 0;
+}
+
+.left{
+    left: 16%;
+    width: 84%;
+}
+
+@media screen and (max-width: 600px) {
+    .left {
+        left: 0;
+        width: 100%;
+    }
+    .hidden{
+        display: none;
+    }
+    .bd{
+        width: 100%;
+    }
+}
+

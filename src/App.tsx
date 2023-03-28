@@ -1,6 +1,17 @@
 import React from 'react';
 import './App.css';
-import {Button, createTheme, CssBaseline, ThemeProvider} from "@mui/material";
+import { styled } from '@mui/material/styles';
+import {
+    Box,
+    createTheme,
+    CssBaseline,
+    Paper,
+    Stack,
+    ThemeProvider
+} from "@mui/material";
+import Grid from '@mui/material/Unstable_Grid2';
+import Menu from "./Menu";
+
 
 const darkTheme = createTheme({
     palette: {
@@ -8,20 +19,35 @@ const darkTheme = createTheme({
     },
 });
 
+const Item = styled(Paper)(() => ({
+    backgroundColor: darkTheme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+    ...darkTheme.typography.body2,
+    padding: darkTheme.spacing(1),
+    textAlign: 'center',
+    color: darkTheme.palette.text.secondary,
+}));
+
 function App() {
     return (
       <ThemeProvider theme={darkTheme}>
           <CssBaseline />
-          <div className="App">
-          <header className="App-header">
-            <h3>
-              Hello World!
-            </h3>
-              <Button variant='outlined'>
-                    Click me!
-              </Button>
-          </header>
-        </div>
+          <Box sx={{ flexGrow: 1 }}>
+              <Grid container>
+                  <Grid xs={12}>
+                      <Menu/>
+                  </Grid>
+                  <Grid xs={0} md={2}></Grid>
+                  <Grid xs={12} md={10}>
+                      <Stack>
+                          <Item>body</Item>
+                      </Stack>
+                  </Grid>
+              </Grid>
+              <div className='left footer'>
+                  <Item>Footer</Item>
+                  <Item>Footer</Item>
+              </div>
+          </Box>
       </ThemeProvider>
   );
 }
