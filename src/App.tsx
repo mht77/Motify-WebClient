@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import Grid from '@mui/material/Unstable_Grid2';
 import Menu from "./Menu";
+import Auth from "./Auth";
 
 
 const darkTheme = createTheme({
@@ -28,6 +29,16 @@ const Item = styled(Paper)(() => ({
 }));
 
 function App() {
+    const [loggedIn, setLoggedIn] = React.useState(localStorage.getItem('token') !== null);
+
+    if (!loggedIn)
+        return (
+            <ThemeProvider theme={darkTheme}>
+                <CssBaseline />
+                <Auth setLoggedIn={setLoggedIn}/>
+            </ThemeProvider>
+        );
+
     return (
       <ThemeProvider theme={darkTheme}>
           <CssBaseline />
