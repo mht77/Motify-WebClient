@@ -12,6 +12,7 @@ import {
 import Grid from '@mui/material/Unstable_Grid2';
 import Menu from "./Menu";
 import Auth from "./Auth";
+import {axiosClient} from "./axiosClient";
 
 
 const darkTheme = createTheme({
@@ -29,7 +30,25 @@ const Item = styled(Paper)(() => ({
 }));
 
 function App() {
-    const [loggedIn, setLoggedIn] = React.useState(localStorage.getItem('token') !== null);
+    const token = localStorage.getItem('token');
+
+    React.useEffect(() => {
+        const checkToken = ()  => {
+            if (token === null)
+                setLoggedIn(false);
+            else
+                axiosClient.post('token/verify/', {'token': token}).then(() => {
+                    setLoggedIn(true);
+                }).catch(() => {
+                    setLoggedIn(false);
+                });
+        }
+        checkToken();
+    },[token]);
+
+
+    const [loggedIn, setLoggedIn] =
+        React.useState(false);
 
     if (!loggedIn)
         return (
