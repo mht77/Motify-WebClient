@@ -1,9 +1,9 @@
 import React from 'react';
 import {Alert, Button, Snackbar, TextField} from "@mui/material";
-import {LoggedInProps, validateEmail} from "./Auth";
+import {AuthProps, validateEmail} from "./Auth";
 import {axiosClient} from "./axiosClient";
 
-const Register = (props: LoggedInProps) => {
+const Register = (props: AuthProps) => {
     const [open, setOpen] = React.useState(false);
     const [email, setEmail] = React.useState('');
     const [password, setPassword] = React.useState('');
@@ -65,9 +65,12 @@ const Register = (props: LoggedInProps) => {
 
     return (
         <div>
-            <TextField error={errEmail} onChange={(e)=>onEmailChange(e.target.value)} variant='outlined' label='Email' type='email'/> <br/><br/>
-            <TextField onChange={(e)=>onPassChange(e.target.value)} variant='outlined' label='Password' type='password'/> <br/><br/>
-            <TextField error={errPass} onChange={(e)=>checkPass(e.target.value)} variant='outlined' label='Repeat' type='password'/> <br/><br/>
+            <TextField sx={props.sx} error={errEmail} onChange={(e)=>onEmailChange(e.target.value)}
+                       variant='outlined' label='Email' type='email'/> <br/><br/>
+            <TextField sx={props.sx} onChange={(e)=>onPassChange(e.target.value)}
+                       variant='outlined' label='Password' type='password'/> <br/><br/>
+            <TextField sx={props.sx} error={errPass} onChange={(e)=>checkPass(e.target.value)}
+                       variant='outlined' label='Repeat' type='password'/> <br/><br/>
             <Button disabled={errEmail || errPass || password===''} variant='contained' onClick={register}> Register </Button>
             <Snackbar
                 anchorOrigin={{ vertical: 'top', horizontal: 'right' }}

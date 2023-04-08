@@ -1,10 +1,10 @@
 import React from 'react';
 import {Alert, Button, Snackbar, TextField} from "@mui/material";
-import {validateEmail, LoggedInProps} from "./Auth";
+import {validateEmail, AuthProps} from "./Auth";
 import {axiosClient} from "./axiosClient";
 import {GoogleLogin, GoogleOAuthProvider} from "@react-oauth/google";
 
-const Login = (props: LoggedInProps) => {
+const Login = (props: AuthProps) => {
     const [open, setOpen] = React.useState(false);
     const [email, setEmail] = React.useState('');
     const [password, setPassword] = React.useState('');
@@ -40,10 +40,14 @@ const Login = (props: LoggedInProps) => {
         }).catch(err => {console.log(err); setOpen(true)});
     };
 
+    const style = {fieldset: { borderColor: "lightskyblue" }};
+
     return (
         <div>
-            <TextField error={erEmail} onChange={(e) => onEmailChange(e.target.value)} variant='outlined' label='Email' type='email'/> <br/><br/>
-            <TextField onChange={(e)=>setPassword(e.target.value)} variant='outlined' label='Password' type='password'/> <br/><br/>
+            <TextField error={erEmail} onChange={(e) => onEmailChange(e.target.value)}
+                       sx={style} variant='outlined' label='Email' type='email'/> <br/><br/>
+            <TextField sx={style} onChange={(e)=>setPassword(e.target.value)}
+                       variant='outlined' label='Password' type='password'/> <br/><br/>
             <Button variant='contained' onClick={()=>login()}> Login </Button><br/><br/>
             <Button>
                 <GoogleOAuthProvider clientId={process.env.REACT_APP_CLIENT_ID!.toString()}>
