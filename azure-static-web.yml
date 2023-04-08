@@ -8,18 +8,29 @@ trigger:
 jobs:
   - job: build_and_deploy_job
     displayName: Build and Deploy Job
-    condition: or(eq(variables['Build.Reason'], 'Manual'),eq(variables['Build.Reason'], 'IndividualCI'))
     pool:
       vmImage: ubuntu-latest
     variables:
-      - group: Azure-Static-Web-Apps-calm-plant-0ffdcbb10-variable-group
+      - group: azure-static-web-apps
     steps:
       - checkout: self
         submodules: true
-      - task: AzureStaticWebApp@0
+      - task: Bash@3
+        displayName: Build
         inputs:
-          azure_static_web_apps_api_token: $(AZURE_STATIC_WEB_APPS_API_TOKEN_CALM_PLANT_0FFDCBB10)
-          app_location: "/"
-          api_location: ""
-          output_location: ""
+          targetType: 'inline'
+          script: |        
+            npm install 
+            npm run build
+        env:
+          REACT_APP_API_URL: $(API_URL)
+          REACT_APP_CLIENT_ID: $(CLIENT_ID)
 
+      - task: AzureStaticWebApp@0
+        displayName: Deploy
+        inputs:
+          app_location: '/'
+          app_build_command: 'echo 1'
+          output_location: 'build'
+        env:
+          azure_static_web_apps_api_token: $(AZURE_STATIC_WEB_APPS_API_TOKEN_CALM_PLANT_0FFDCBB10)
