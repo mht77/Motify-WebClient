@@ -45,16 +45,33 @@ export default function Menu() {
             </List>
             <Divider />
             <List>
-                {["Create Playlist", "Liked Songs", "LBNL"].map((text, index) => (
-                    <ListItem key={text} disablePadding>
-                        <ListItemButton>
-                            <ListItemIcon>
-                                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                            </ListItemIcon>
-                            <ListItemText primary={text} />
-                        </ListItemButton>
-                    </ListItem>
-                ))}
+                <ListItem key="Create Playlist" disablePadding onClick={()=>{}}>
+                    <ListItemButton>
+                        <ListItemIcon>
+                            <InboxIcon />
+                        </ListItemIcon>
+                        <ListItemText primary="Create Playlist" />
+                    </ListItemButton>
+                </ListItem>
+                <ListItem key="Liked Songs" disablePadding onClick={()=>{}}>
+                    <ListItemButton>
+                        <ListItemIcon>
+                            <MailIcon />
+                        </ListItemIcon>
+                        <ListItemText primary="Liked Songs"/>
+                    </ListItemButton>
+                </ListItem>
+                <ListItem key="Logout" disablePadding onClick={()=>{
+                    localStorage.removeItem('token');
+                    window.location.reload();
+                }}>
+                    <ListItemButton>
+                        <ListItemIcon>
+                            <InboxIcon />
+                        </ListItemIcon>
+                        <ListItemText primary="Logout"/>
+                    </ListItemButton>
+                </ListItem>
             </List>
         </div>
     );
