@@ -11,19 +11,59 @@ import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
+import HomeIcon from '@mui/icons-material/Home';
+import SearchIcon from '@mui/icons-material/Search';
 import MailIcon from "@mui/icons-material/Mail";
 import MenuIcon from "@mui/icons-material/Menu";
+import LogoutIcon from '@mui/icons-material/Logout';
 import Toolbar from "@mui/material/Toolbar";
 import icon from "./icon.png";
+import {TextField} from "@mui/material";
+import {useEffect} from "react";
+import {search} from "./APIs";
+import {Song} from "./types";
+import {pageProps} from "./App";
 
 const drawerWidth = 100/6 + '%';
 
-export default function Menu() {
+export interface menuProps extends pageProps {
+    songs: Song[];
+    setSongs: (songs: Song[]) => void;
+}
+
+export const Menu = (props: menuProps) => {
     const [mobileOpen, setMobileOpen] = React.useState(false);
+
+    const [keyword, setKeyword] = React.useState('');
+
+    const [query, setQuery] = React.useState('');
+
+    useEffect(() => {
+        const timeOutId = setTimeout(() => setKeyword(query), 1500);
+        return () => clearTimeout(timeOutId);
+    }, [query]);
+
+    useEffect(() => {
+        if (keyword !== ''){
+            search(keyword).then((res) => props.setSongs!(res));
+        }
+    }, [keyword, props.setSongs]);
+
 
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
     };
+
+    const openSearch = () => {
+        props.setPage('Search');
+        handleDrawerToggle();
+    }
+
+    const openHome = () => {
+        props.setPage('Home');
+        handleDrawerToggle();
+    }
+
 
     const drawer = (
         <div>
@@ -32,16 +72,30 @@ export default function Menu() {
             </Toolbar>
             <Divider />
             <List>
-                {["Home", "Search", "Library"].map((text, index) => (
-                    <ListItem key={text} disablePadding>
-                        <ListItemButton>
-                            <ListItemIcon>
-                                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                            </ListItemIcon>
-                            <ListItemText primary={text} />
-                        </ListItemButton>
-                    </ListItem>
-                ))}
+                <ListItem key="Home" disablePadding onClick={()=>openHome()}>
+                    <ListItemButton>
+                        <ListItemIcon>
+                            <HomeIcon/>
+                        </ListItemIcon>
+                        <ListItemText primary="Home" />
+                    </ListItemButton>
+                </ListItem>
+                <ListItem key="Search" disablePadding onClick={()=>openSearch()}>
+                    <ListItemButton>
+                        <ListItemIcon>
+                            <SearchIcon/>
+                        </ListItemIcon>
+                        <ListItemText primary="Search"/>
+                    </ListItemButton>
+                </ListItem>
+                <ListItem key="Library" disablePadding onClick={()=>{}}>
+                    <ListItemButton>
+                        <ListItemIcon>
+                            <InboxIcon />
+                        </ListItemIcon>
+                        <ListItemText primary="Library"/>
+                    </ListItemButton>
+                </ListItem>
             </List>
             <Divider />
             <List>
@@ -67,7 +121,7 @@ export default function Menu() {
                 }}>
                     <ListItemButton>
                         <ListItemIcon>
-                            <InboxIcon />
+                            <LogoutIcon/>
                         </ListItemIcon>
                         <ListItemText primary="Logout"/>
                     </ListItemButton>
@@ -95,10 +149,19 @@ export default function Menu() {
                         aria-label="open drawer"
                         edge="start"
                         onClick={handleDrawerToggle}
-                        sx={{ mr: 2, display: { sm: "none" } }}
+                        sx={{ mr: 2, display: { sm: "none" }}}
                     >
                         <MenuIcon />
                     </IconButton>
+                    <h2 style={{float: 'left'}}>
+                        {props.page}
+                    </h2>
+                    {props.page === 'Search' &&
+                        <div style={{width: '85%', marginLeft: '2rem'}}>
+                            <TextField fullWidth size='small'
+                                       onChange={(e)=>setQuery(e.target.value)}/>
+                        </div>
+                    }
                 </Toolbar>
             </AppBar>
             <Box
