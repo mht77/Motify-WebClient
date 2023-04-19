@@ -44,11 +44,11 @@ const Login = (props: AuthProps) => {
 
     return (
         <div>
-            <TextField error={erEmail} onChange={(e) => onEmailChange(e.target.value)}
+            <TextField id='login-email' error={erEmail} onChange={(e) => onEmailChange(e.target.value)}
                        sx={style} variant='outlined' label='Email' type='email'/> <br/><br/>
-            <TextField sx={style} onChange={(e)=>setPassword(e.target.value)}
+            <TextField id='login-pass' sx={style} onChange={(e)=>setPassword(e.target.value)}
                        variant='outlined' label='Password' type='password'/> <br/><br/>
-            <Button variant='contained' onClick={()=>login()}> Login </Button><br/><br/>
+            <Button id='login-btn' variant='contained' onClick={()=>login()}> Login </Button><br/><br/>
             <Button>
                 <GoogleOAuthProvider clientId={process.env.REACT_APP_CLIENT_ID!.toString()}>
                     <GoogleLogin
