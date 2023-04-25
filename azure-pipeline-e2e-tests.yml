@@ -15,7 +15,7 @@ jobs:
         targetType: 'inline'
         script: |
           docker-compose up -d rabbitmq redis db
-          docker exec -it db psql -U postgres -c "Create Database gateway;" 
+          docker exec db psql -U postgres -c "Create Database gateway;" 
         workingDirectory: '$(System.DefaultWorkingDirectory)/Motify'
       displayName: Run required services
     - task: Bash@3
