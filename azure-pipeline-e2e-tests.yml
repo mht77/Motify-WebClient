@@ -27,9 +27,9 @@ jobs:
         targetType: 'inline'
         script: |
           npm install
-          pm2 start npm -- start
+          npx pm2 start npm -- start
           sleep 5
-          cypress run
+          npx cypress run
         workingDirectory: '$(System.DefaultWorkingDirectory)/webclient'
       displayName: Run Tests
     - task: PublishTestResults@2
