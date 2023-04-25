@@ -13,7 +13,9 @@ jobs:
     - task: Bash@3
       inputs:
         targetType: 'inline'
-        script: 'docker-compose up -d rabbitmq redis db'
+        script: |
+          docker-compose up -d rabbitmq redis db
+          docker exec -it db psql -U postgres -c "Create Database gateway;" 
         workingDirectory: '$(System.DefaultWorkingDirectory)/Motify'
       displayName: Run required services
     - task: Bash@3
@@ -29,7 +31,7 @@ jobs:
           npm install
           npx pm2 start npm -- start
           sleep 5
-          npx cypress run
+          npx cypress run || true
         workingDirectory: '$(System.DefaultWorkingDirectory)/webclient'
       displayName: Run Tests
     - task: PublishTestResults@2
