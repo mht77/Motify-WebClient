@@ -10,22 +10,28 @@ jobs:
     steps:
     - checkout: self
     - checkout: git://Motify/Motify
-    - script: cd Motify
-
-    - script: docker-compose up -d rabbitmq db redis
+    - task: Bash@3
+      inputs:
+        targetType: 'inline'
+        script: 'docker-compose up -d rabbitmq redis db'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/Motify'
       displayName: Run required services
-
-    - script: docker-compose up -d --build
+    - task: Bash@3
+      inputs:
+        targetType: 'inline'
+        script: 'docker-compose up -d --build'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/Motify'
       displayName: Run all services
-    - script: cd ../webclient
-
-    - script: npm install
-    - script: npm start
-      displayName: Run web client
-    - script: sleep 5
-
-    - script: cypress run
-
+    - task: Bash@3
+      inputs:
+        targetType: 'inline'
+        script: |
+          npm install
+          npm start
+          sleep 5
+          cypress run
+        workingDirectory: '$(System.DefaultWorkingDirectory)/webclient'
+      displayName: Run Tests
     - task: PublishTestResults@2
       inputs:
         testResultsFormat: 'JUnit'
