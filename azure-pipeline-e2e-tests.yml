@@ -4,26 +4,29 @@ trigger:
 pool:
   vmImage: ubuntu-latest
 
-steps:
-  - checkout: self
-  - checkout: git://Motify/Motify
-  - script: cd Motify
+jobs:
+  - job: e2e
+    displayName: Executing E2E Tests
+    steps:
+    - checkout: self
+    - checkout: git://Motify/Motify
+    - script: cd Motify
 
-  - script: docker-compose up -d rabbitmq db redis
-    displayName: Run required services
+    - script: docker-compose up -d rabbitmq db redis
+      displayName: Run required services
 
-  - script: docker-compose up -d --build
-    displayName: Run all services
-  - script: cd ../weblcient
+    - script: docker-compose up -d --build
+      displayName: Run all services
+    - script: cd ../webclient
 
-  - script: npm install
-  - script: npm start
-    displayName: Run web client
-  - script: sleep 5
+    - script: npm install
+    - script: npm start
+      displayName: Run web client
+    - script: sleep 5
 
-  - script: cypress run
+    - script: cypress run
 
-  - task: PublishTestResults@2
-    inputs:
-      testResultsFormat: 'JUnit'
-      testResultsFiles: '**/tests/test*.xml'
+    - task: PublishTestResults@2
+      inputs:
+        testResultsFormat: 'JUnit'
+        testResultsFiles: '**/tests/test*.xml'
