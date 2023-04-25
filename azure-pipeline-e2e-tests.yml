@@ -7,6 +7,8 @@ pool:
 jobs:
   - job: e2e
     displayName: Executing E2E Tests
+    variables:
+      - group: azure-static-web-apps
     steps:
     - checkout: self
     - checkout: git://Motify/Motify
@@ -34,6 +36,9 @@ jobs:
           sleep 5
           npx cypress run || true
         workingDirectory: '$(System.DefaultWorkingDirectory)/webclient'
+      env:
+        REACT_APP_API_URL: 'http://localhost:7777/api/'
+        REACT_APP_CLIENT_ID: $(CLIENT_ID)
       displayName: Run Tests
     - task: PublishTestResults@2
       inputs:
