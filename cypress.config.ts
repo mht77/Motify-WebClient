@@ -6,4 +6,9 @@ export default defineConfig({
       // implement node event listeners here
     },
   },
+  reporter: "junit",
+  reporterOptions: {
+    mochaFile: "tests/test-output-[hash].xml"
+  },
+  video: false,
 });
