@@ -27,7 +27,7 @@ jobs:
         targetType: 'inline'
         script: |
           npm install
-          npm start
+          pm2 start npm -- start
           sleep 5
           cypress run
         workingDirectory: '$(System.DefaultWorkingDirectory)/webclient'
