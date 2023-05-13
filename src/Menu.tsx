@@ -18,10 +18,10 @@ import MenuIcon from "@mui/icons-material/Menu";
 import LogoutIcon from '@mui/icons-material/Logout';
 import Toolbar from "@mui/material/Toolbar";
 import icon from "./icon.png";
-import {TextField} from "@mui/material";
+import {Badge, Popover, TextField} from "@mui/material";
 import {useEffect} from "react";
-import {search} from "./APIs";
-import {Song} from "./types";
+import {getNotifications, search} from "./APIs";
+import {Song, Notification} from "./types";
 import {pageProps} from "./App";
 
 const drawerWidth = 100/6 + '%';
@@ -38,6 +38,21 @@ export const Menu = (props: menuProps) => {
 
     const [query, setQuery] = React.useState('');
 
+    const [notifications, setNotification] = React.useState<Notification[]>([]);
+
+    const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
+
+    const handleClick = (event: any) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
+
+    const open = Boolean(anchorEl);
+    const id = open ? 'popover' : undefined;
+
     useEffect(() => {
         const timeOutId = setTimeout(() => setKeyword(query), 1500);
         return () => clearTimeout(timeOutId);
@@ -48,6 +63,10 @@ export const Menu = (props: menuProps) => {
             search(keyword).then((res) => props.setSongs!(res));
         }
     }, [keyword, props.setSongs]);
+
+    useEffect(() => {
+        getNotifications().then((res) => setNotification(res)).catch((err) => console.log(err));
+    },[]);
 
 
     const handleDrawerToggle = () => {
@@ -64,11 +83,35 @@ export const Menu = (props: menuProps) => {
         handleDrawerToggle();
     }
 
-
     const drawer = (
         <div>
             <Toolbar>
-                <img src={icon} alt='icon' width='35rem' height='35rem'/> <b className='hidden'>&nbsp;&nbsp;&nbsp;Motify</b>
+                <Badge badgeContent={notifications.length.toString()} color='secondary'>
+                    <img onClick={handleClick} src={icon} alt='icon' width='35rem' height='35rem'/>
+                </Badge>
+                <b className='hidden'>&nbsp;&nbsp;&nbsp;Motify</b>
+                <Popover
+                    id={id}
+                    open={open}
+                    anchorEl={anchorEl}
+                    onClose={handleClose}
+                    anchorOrigin={{
+                        vertical: 'bottom',
+                        horizontal: 'left',
+                    }}
+                >
+                    <List>
+                        {notifications.map((notification) => (
+                                <ListItem>
+                                    <ListItemText>
+                                        {notification.msg}
+                                    </ListItemText>
+                                </ListItem>
+                            )
+                        )}
+                        {notifications.length === 0 && <ListItem> <ListItemText> No notifications </ListItemText> </ListItem>}
+                    </List>
+                </Popover>
             </Toolbar>
             <Divider />
             <List>

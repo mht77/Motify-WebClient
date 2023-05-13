@@ -25,7 +25,7 @@ const Login = (props: AuthProps) => {
     }
 
     const login = async () => {
-        await axiosClient.post('token/', {'username': email, password}).then(res => {
+        await axiosClient.post('token/', {'email': email, password}).then(res => {
             if (res.status === 200) {
                setToken(res.data.access);
             }

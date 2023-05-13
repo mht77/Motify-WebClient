@@ -21,8 +21,6 @@ const Player = () => {
                         {darkTheme.direction === 'rtl' ? <SkipPreviousIcon /> : <SkipNextIcon />}
                     </IconButton>
                 </Box>
-                {/*<iframe src='http://localhost:7778/player/' title='player'*/}
-                {/*        style={{maxHeight: '5rem', width: '100%', border: 'none'}}/>*/}
             </Item>
         </div>
     );
