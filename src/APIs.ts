@@ -25,3 +25,15 @@ export const getNotifications = async () => {
         });
     return result;
 }
+
+export const getUserPlayerToken = async () => {
+    let client = setToken(axiosClient);
+    let result = {'token': '', 'deviceId': -1};
+    await client.get(`/user_player/`).then((res) => result = res.data)
+        .catch((err) => {
+            console.log(err);
+        });
+    localStorage.setItem('deviceId', result.deviceId.toString());
+    localStorage.setItem('playerToken', result.token);
+    return result;
+}

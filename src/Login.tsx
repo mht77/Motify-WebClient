@@ -3,6 +3,7 @@ import {Alert, Button, Snackbar, TextField} from "@mui/material";
 import {validateEmail, AuthProps} from "./Auth";
 import {axiosClient} from "./axiosClient";
 import {GoogleLogin, GoogleOAuthProvider} from "@react-oauth/google";
+import {getUserPlayerToken} from "./APIs";
 
 const Login = (props: AuthProps) => {
     const [open, setOpen] = React.useState(false);
@@ -19,8 +20,9 @@ const Login = (props: AuthProps) => {
         setOpen(false);
     };
 
-    const setToken = (token: string) => {
+    const setToken = async (token: string) => {
         localStorage.setItem('token', token);
+        await getUserPlayerToken().catch((err) => console.log(err));
         props.setLoggedIn(true);
     }
 

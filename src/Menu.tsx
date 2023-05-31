@@ -102,7 +102,7 @@ export const Menu = (props: menuProps) => {
                 >
                     <List>
                         {notifications.map((notification) => (
-                                <ListItem>
+                                <ListItem key={Math.random()}>
                                     <ListItemText>
                                         {notification.msg}
                                     </ListItemText>
@@ -160,6 +160,8 @@ export const Menu = (props: menuProps) => {
                 </ListItem>
                 <ListItem key="Logout" disablePadding onClick={()=>{
                     localStorage.removeItem('token');
+                    localStorage.removeItem('playerToken');
+                    localStorage.removeItem('deviceId')
                     window.location.reload();
                 }}>
                     <ListItemButton>

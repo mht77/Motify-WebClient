@@ -61,5 +61,10 @@
     .auth{
         margin-top: 30%;
     }
+    .songName{
+        margin-block-start: 0;
+    }
 }
+
+
 

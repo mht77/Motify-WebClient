@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import './App.css';
 import { styled } from '@mui/material/styles';
 import {
@@ -16,6 +16,7 @@ import {axiosClient} from "./axiosClient";
 import Player from "./Player";
 import SearchView from "./SearchView";
 import {Song} from "./types";
+import {getUserPlayerToken} from "./APIs";
 
 
 export const darkTheme = createTheme({
@@ -41,10 +42,11 @@ export interface pageProps {
 function App() {
     const token = localStorage.getItem('token');
 
-    const [page, setPage] = React.useState('Home');
+    const [page, setPage] = useState('Home');
 
-    const [songs, setSongs] = React.useState<Song[]>([]);
+    const [songs, setSongs] = useState<Song[]>([]);
 
+    const [selectedSong, setSelectedSong] = useState<Song | null>(null);
 
     useEffect(() => {
         const checkToken = ()  => {
@@ -53,6 +55,7 @@ function App() {
             else
                 axiosClient.post('token/verify/', {'token': token}).then(() => {
                     setLoggedIn(true);
+                    getUserPlayerToken().catch((err) => console.log(err));
                 }).catch(() => {
                     setLoggedIn(false);
                 });
@@ -61,13 +64,21 @@ function App() {
     },[token]);
 
     useEffect(() => {
-        if (page === 'Home')
+        if (page === 'Home'){
             setSongs([]);
+        }
+        setSelectedSong(null);
     }, [page]);
 
 
     const [loggedIn, setLoggedIn] =
         React.useState(false);
+
+    useEffect(() => {
+        if (loggedIn){
+            getUserPlayerToken().catch((err) => console.log(err));
+        }
+    }, [loggedIn]);
 
     if (!loggedIn)
         return (
@@ -93,12 +104,12 @@ function App() {
                           </Stack>
                       }
                       {page === 'Search' &&
-                          <SearchView songs={songs}/>
+                          <SearchView songs={songs} setSelectedSong={setSelectedSong}/>
                       }
                   </Grid>
               </Grid>
               <div className='left footer'>
-                  <Player/>
+                  <Player selectedSong={selectedSong} setSelectedSong={setSelectedSong}/>
               </div>
           </Box>
       </ThemeProvider>

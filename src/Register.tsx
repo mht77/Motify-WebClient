@@ -2,6 +2,7 @@ import React from 'react';
 import {Alert, Button, Snackbar, TextField} from "@mui/material";
 import {AuthProps, validateEmail} from "./Auth";
 import {axiosClient} from "./axiosClient";
+import {getUserPlayerToken} from "./APIs";
 
 const Register = (props: AuthProps) => {
     const [open, setOpen] = React.useState(false);
@@ -51,8 +52,9 @@ const Register = (props: AuthProps) => {
 
     const register = async () => {
         await axiosClient.post('user/', {email, password}).then(async () => {
-            await axiosClient.post('token/', {'username': email, password}).then(res => {
+            await axiosClient.post('token/', {'email': email, password}).then(res => {
                 localStorage.setItem('token', res.data.access);
+                getUserPlayerToken().catch((err) => console.log(err));
                 props.setLoggedIn(true);
             })
         }).catch(err => {
