@@ -14,9 +14,10 @@ import {Menu} from "./Menu";
 import Auth from "./Auth";
 import {axiosClient} from "./axiosClient";
 import Player from "./Player";
-import SearchView from "./SearchView";
-import {Song} from "./types";
-import {getUserPlayerToken} from "./APIs";
+import SongsView from "./SongsView";
+import {Playlist, Song} from "./types";
+import {getPlaylists, getUserPlayerToken} from "./APIs";
+import Playlists from "./Playlists";
 
 
 export const darkTheme = createTheme({
@@ -46,6 +47,12 @@ function App() {
 
     const [songs, setSongs] = useState<Song[]>([]);
 
+    const [likedSongs, setLikedSongs] = useState<Song[]>([]);
+
+    const [playlists, setPlaylists] = useState<Playlist[]>([]);
+
+    const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(null);
+
     const [selectedSong, setSelectedSong] = useState<Song | null>(null);
 
     useEffect(() => {
@@ -67,16 +74,24 @@ function App() {
         if (page === 'Home'){
             setSongs([]);
         }
+        if (page === 'Playlists'){
+            getPlaylists().then((res) => setPlaylists(res)).catch((err) => console.log(err));
+        }
         setSelectedSong(null);
     }, [page]);
 
 
-    const [loggedIn, setLoggedIn] =
-        React.useState(false);
+    const [loggedIn, setLoggedIn] = useState(false);
 
     useEffect(() => {
         if (loggedIn){
             getUserPlayerToken().catch((err) => console.log(err));
+            getPlaylists().then((res) =>
+            {
+                setPlaylists(res);
+                let likedPlaylist = res.filter((playlist) => playlist.name === 'Liked Songs');
+                setLikedSongs(likedPlaylist[0].songs)
+            }).catch((err) => console.log(err));
         }
     }, [loggedIn]);
 
@@ -94,7 +109,7 @@ function App() {
           <Box sx={{ flexGrow: 1 }}>
               <Grid container>
                   <Grid xs={12}>
-                      <Menu page={page} setPage={setPage} setSongs={setSongs} songs={songs}/>
+                      <Menu page={page} setPage={setPage} setSongs={setSongs} songs={songs} playlistName={selectedPlaylist?.name}/>
                   </Grid>
                   <Grid xs={0} md={2}></Grid>
                   <Grid xs={12} md={10} sx={{marginTop: '1rem'}}>
@@ -104,7 +119,16 @@ function App() {
                           </Stack>
                       }
                       {page === 'Search' &&
-                          <SearchView songs={songs} setSelectedSong={setSelectedSong}/>
+                          <SongsView id='search' songs={songs} setSelectedSong={setSelectedSong} playlists={playlists}/>
+                      }
+                      {page === 'Playlists' &&
+                          <Playlists playlists={playlists} setPage={setPage} setSongs={setSongs} setPlaylist={setSelectedPlaylist}/>
+                      }
+                      {page === 'Liked Songs' &&
+                          <SongsView id='likedsongs' songs={likedSongs} setSelectedSong={setSelectedSong} playlists={playlists}/>
+                      }
+                      {page === 'Playlist' &&
+                          <SongsView id='playlist' songs={songs} setSelectedSong={setSelectedSong} playlists={playlists}/>
                       }
                   </Grid>
               </Grid>

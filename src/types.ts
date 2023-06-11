@@ -7,7 +7,6 @@ export type Song = {
     dateAdded: string,
 }
 
-
 export type Notification = {
     msg: string,
     createdAt: string,
@@ -21,7 +20,6 @@ export type UserPlayer = {
     device?: Device,
 }
 
-
 export enum State {
     PLAYING = "PLAYING",
     PAUSED = "PAUSED",
@@ -30,4 +28,11 @@ export enum State {
 export type Device = {
     id: number,
     name: string,
+}
+
+export type Playlist = {
+    id: string,
+    name: string,
+    songs: Song[],
+    dateCreated: string,
 }

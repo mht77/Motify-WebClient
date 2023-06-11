@@ -1,6 +1,6 @@
 import {axiosClient} from "./axiosClient";
 import {AxiosInstance} from "axios";
-import {Notification, Song} from "./types";
+import {Notification, Song, Playlist} from "./types";
 
 const setToken = (axiosInstance: AxiosInstance) => {
     axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
@@ -35,5 +35,45 @@ export const getUserPlayerToken = async () => {
         });
     localStorage.setItem('deviceId', result.deviceId.toString());
     localStorage.setItem('playerToken', result.token);
+    return result;
+}
+
+export const getPlaylists = async () => {
+    let client = setToken(axiosClient);
+    let result: Playlist[] = [];
+    await client.get(`/playlists/`).then((res) => result = res.data)
+        .catch((err) => {
+            console.log(err);
+        });
+    return result;
+}
+
+export const createPlaylist = async (name: string) => {
+    let client = setToken(axiosClient);
+    let result: Playlist = {
+        id: '',
+        name: '',
+        songs: [],
+        dateCreated: '',
+    };
+    await client.post(`/playlists/`, {name: name}).then((res) => result = res.data)
+        .catch((err) => {
+            console.log(err);
+        });
+    return result;
+}
+
+export const addSongToPlaylist = async (playlistId: string, songs: string[]) => {
+    let client = setToken(axiosClient);
+    let result: Playlist = {
+        id: '',
+        name: '',
+        songs: [],
+        dateCreated: '',
+    };
+    await client.put(`/playlists/${playlistId}/`, {'songs': songs}).then((res) => result = res.data)
+        .catch((err) => {
+            console.log(err);
+        });
     return result;
 }

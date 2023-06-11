@@ -13,14 +13,23 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import HomeIcon from '@mui/icons-material/Home';
 import SearchIcon from '@mui/icons-material/Search';
-import MailIcon from "@mui/icons-material/Mail";
+import CreateIcon from '@mui/icons-material/Create';
 import MenuIcon from "@mui/icons-material/Menu";
 import LogoutIcon from '@mui/icons-material/Logout';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 import Toolbar from "@mui/material/Toolbar";
 import icon from "./icon.png";
-import {Badge, Popover, TextField} from "@mui/material";
+import {
+    Badge,
+    Button, Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText, DialogTitle,
+    Popover,
+    TextField
+} from "@mui/material";
 import {useEffect} from "react";
-import {getNotifications, search} from "./APIs";
+import {createPlaylist, getNotifications, search} from "./APIs";
 import {Song, Notification} from "./types";
 import {pageProps} from "./App";
 
@@ -29,6 +38,7 @@ const drawerWidth = 100/6 + '%';
 export interface menuProps extends pageProps {
     songs: Song[];
     setSongs: (songs: Song[]) => void;
+    playlistName?: string;
 }
 
 export const Menu = (props: menuProps) => {
@@ -41,6 +51,10 @@ export const Menu = (props: menuProps) => {
     const [notifications, setNotification] = React.useState<Notification[]>([]);
 
     const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
+
+    const [playlistName, setPlaylistName] = React.useState<string>('');
+
+    const [modalOpen, setModalOpen] = React.useState(false);
 
     const handleClick = (event: any) => {
         setAnchorEl(event.currentTarget);
@@ -78,10 +92,25 @@ export const Menu = (props: menuProps) => {
         handleDrawerToggle();
     }
 
+    const showPlaylists = () => {
+        props.setPage('Playlists');
+        handleDrawerToggle();
+    }
+
     const openHome = () => {
         props.setPage('Home');
         handleDrawerToggle();
     }
+
+    const handleOnCreate = async () => {
+        if (playlistName !== ''){
+            await createPlaylist(playlistName);
+            props.setPage('Playlists');
+            setModalOpen(false);
+        }
+    }
+
+    const handleModalClose = () => setModalOpen(false);
 
     const drawer = (
         <div>
@@ -131,7 +160,7 @@ export const Menu = (props: menuProps) => {
                         <ListItemText primary="Search"/>
                     </ListItemButton>
                 </ListItem>
-                <ListItem key="Library" disablePadding onClick={()=>{}}>
+                <ListItem key="Library" disablePadding onClick={()=> showPlaylists()}>
                     <ListItemButton>
                         <ListItemIcon>
                             <InboxIcon />
@@ -142,18 +171,18 @@ export const Menu = (props: menuProps) => {
             </List>
             <Divider />
             <List>
-                <ListItem key="Create Playlist" disablePadding onClick={()=>{}}>
+                <ListItem key="Create Playlist" disablePadding onClick={()=>setModalOpen(true)}>
                     <ListItemButton>
                         <ListItemIcon>
-                            <InboxIcon />
+                            <CreateIcon />
                         </ListItemIcon>
                         <ListItemText primary="Create Playlist" />
                     </ListItemButton>
                 </ListItem>
-                <ListItem key="Liked Songs" disablePadding onClick={()=>{}}>
+                <ListItem key="Liked Songs" disablePadding onClick={()=>props.setPage('Liked Songs')}>
                     <ListItemButton>
                         <ListItemIcon>
-                            <MailIcon />
+                            <FavoriteIcon />
                         </ListItemIcon>
                         <ListItemText primary="Liked Songs"/>
                     </ListItemButton>
@@ -172,6 +201,28 @@ export const Menu = (props: menuProps) => {
                     </ListItemButton>
                 </ListItem>
             </List>
+            <Dialog open={modalOpen} onClose={handleModalClose}>
+                <DialogTitle>Create Playlist</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Choose a name for your playlist
+                    </DialogContentText>
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        id="name"
+                        label="Name"
+                        type="text"
+                        fullWidth
+                        variant="standard"
+                        onChange={(e) => setPlaylistName(e.target.value)}
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleModalClose}>Cancel</Button>
+                    <Button onClick={handleOnCreate}>Create</Button>
+                </DialogActions>
+            </Dialog>
         </div>
     );
 
@@ -198,9 +249,15 @@ export const Menu = (props: menuProps) => {
                     >
                         <MenuIcon />
                     </IconButton>
-                    <h2 style={{float: 'left'}}>
-                        {props.page}
-                    </h2>
+                    {
+                        props.page === 'Playlist' && props.playlistName !== null && props.playlistName !== undefined ?
+                            (<h2 style={{float: 'left'}}>
+                                {props.playlistName}
+                            </h2>) :
+                            (<h2 style={{float: 'left'}}>
+                                {props.page}
+                            </h2>)
+                    }
                     {props.page === 'Search' &&
                         <div style={{width: '85%', marginLeft: '2rem'}}>
                             <TextField fullWidth size='small'
