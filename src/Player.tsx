@@ -8,7 +8,7 @@ import PauseIcon from '@mui/icons-material/Pause';
 import SwitchAccessShortcutIcon from '@mui/icons-material/SwitchAccessShortcut';
 import {darkTheme, Item} from "./App";
 import {Song, State, UserPlayer} from "./types";
-import {getUserPlayerToken} from "./APIs";
+import {getUserPlayerToken, getFileUrl} from "./APIs";
 import useWebSocket from "react-use-websocket";
 import "./App.css"
 
@@ -33,12 +33,14 @@ const Player = (props: playerProps) => {
     const token = useRef(localStorage.getItem('playerToken'));
     const deviceId = useRef(localStorage.getItem('deviceId'));
 
+    const protoc = process.env.NODE_ENV === 'development' ? 'ws' : 'wss';
+
     audio.current.ontimeupdate = () => {
         setPercent(audio.current.currentTime/ audio.current.duration * 100);
     }
 
     const {sendMessage, lastMessage} =
-        useWebSocket(`ws://${process.env.REACT_APP_PLAYER_URL}/user_player?`+ token.current,
+        useWebSocket(`${protoc}://${process.env.REACT_APP_PLAYER_URL}/user_player?`+ token.current,
             {
                 shouldReconnect: () => {
                     updateToken();
@@ -58,8 +60,7 @@ const Player = (props: playerProps) => {
     }, [lastMessage]);
 
     useEffect(() => {
-        let protocol = process.env.NODE_ENV === 'development' ? 'http://' : 'https://';
-        audio.current.src = `${protocol}${process.env.REACT_APP_PLAYER_URL}${userPlayer?.current_song?.file}`;
+        audio.current.src = getFileUrl(userPlayer);
         if (audio.current.currentTime === 0 && userPlayer?.second !== 0) {
             audio.current.currentTime = userPlayer?.second;
             setPercent(userPlayer?.second / audio.current.duration * 100);
