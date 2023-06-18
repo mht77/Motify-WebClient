@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {Box} from "@mui/material";
+import {Box, Slider} from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import SkipNextIcon from "@mui/icons-material/SkipNext";
 import SkipPreviousIcon from "@mui/icons-material/SkipPrevious";
@@ -10,6 +10,7 @@ import {darkTheme, Item} from "./App";
 import {Song, State, UserPlayer} from "./types";
 import {getUserPlayerToken} from "./APIs";
 import useWebSocket from "react-use-websocket";
+import "./App.css"
 
 export interface playerProps {
     selectedSong: Song | null;
@@ -23,12 +24,18 @@ const Player = (props: playerProps) => {
         device: undefined,
         id: "",
         state: State.PAUSED,
-        user: ""
+        user: "",
+        second: 0,
     });
     const [onThisDevice, setOnThisDevice] = useState(false);
+    const [percent, setPercent] = useState(0);
     const audio = useRef(new Audio());
     const token = useRef(localStorage.getItem('playerToken'));
     const deviceId = useRef(localStorage.getItem('deviceId'));
+
+    audio.current.ontimeupdate = () => {
+        setPercent(audio.current.currentTime/ audio.current.duration * 100);
+    }
 
     const {sendMessage, lastMessage} =
         useWebSocket(`ws://${process.env.REACT_APP_PLAYER_URL}/user_player?`+ token.current,
@@ -46,17 +53,22 @@ const Player = (props: playerProps) => {
 
     useEffect(() => {
         if (lastMessage === null) return;
-        console.log(lastMessage);
+        console.log(lastMessage.data);
         setUserPlayer(JSON.parse(lastMessage.data));
     }, [lastMessage]);
 
     useEffect(() => {
         let protocol = process.env.NODE_ENV === 'development' ? 'http://' : 'https://';
         audio.current.src = `${protocol}${process.env.REACT_APP_PLAYER_URL}${userPlayer?.current_song?.file}`;
+        if (audio.current.currentTime === 0 && userPlayer?.second !== 0) {
+            audio.current.currentTime = userPlayer?.second;
+            setPercent(userPlayer?.second / audio.current.duration * 100);
+        }
         if (userPlayer.device?.id.toString() === deviceId.current) {
             if (userPlayer?.state === State.PLAYING) {
                 audio.current.play();
             } else {
+                audio.current.currentTime = userPlayer?.second;
                 audio.current.pause();
             }
             setOnThisDevice(true);
@@ -64,6 +76,7 @@ const Player = (props: playerProps) => {
         else {
             audio.current.pause();
             setOnThisDevice(false);
+            audio.current.currentTime = userPlayer?.second;
         }
     }, [userPlayer]);
 
@@ -76,7 +89,7 @@ const Player = (props: playerProps) => {
 
     const ChangeState = () => {
         if (userPlayer?.state === State.PLAYING) {
-            sendMessage(JSON.stringify({'state': State.PAUSED}));
+            sendMessage(JSON.stringify({'state': State.PAUSED, 'second': audio.current.currentTime}));
         } else {
             sendMessage(JSON.stringify({'state': State.PLAYING}));
         }
@@ -92,6 +105,11 @@ const Player = (props: playerProps) => {
         sendMessage(JSON.stringify({'device': deviceId.current}));
     }
 
+    const onSecondChange = (value: number) => {
+        let seconds = value * audio.current.duration / 100;
+        sendMessage(JSON.stringify({'second': seconds}));
+    }
+
     if (userPlayer?.current_song !== props.selectedSong) {
         ChangeSong(props.selectedSong);
     }
@@ -103,11 +121,11 @@ const Player = (props: playerProps) => {
                     <h4 className='songName' style={{marginBlockEnd: 0}}>
                         {userPlayer?.current_song?.name}
                     </h4>
-                    <h5 style={{marginBlock: 0}}>
+                    <h5 style={{marginBlock: 0}} className={'playerArtist'}>
                         Artist:&nbsp;{userPlayer?.current_song?.artist}
                     </h5>
                 </Box>
-                <Box sx={{justifyContent: 'center', width: '60%', float: 'left', display: 'inline'}}>
+                <Box sx={{justifyContent: 'center', width: '55%', float: 'left', display: 'inline'}}>
                     { !onThisDevice &&
                     <IconButton aria-label="switch" title='Play on This Device' onClick={()=>PlayOnDevice()}>
                         <SwitchAccessShortcutIcon/>
@@ -123,14 +141,21 @@ const Player = (props: playerProps) => {
                     <IconButton aria-label="next">
                         {darkTheme.direction === 'rtl' ? <SkipPreviousIcon /> : <SkipNextIcon />}
                     </IconButton>
-                    <h5 style={{marginBlock: 0}}>
-                        &nbsp;&nbsp;Listening on:&nbsp;{userPlayer?.device?.name}
-                    </h5>
+                    <Box sx={{display: 'flex', justifyContent: 'center'}}>
+                        <Slider
+                            size="small"
+                            aria-label="Small"
+                            step={1}
+                            min={0}
+                            max={100}
+                            onChangeCommitted={(_, value)=>onSecondChange(value as number)}
+                            sx={{padding: 0}}
+                            value={percent}
+                        />
+                    </Box>
                 </Box>
-                <Box sx={{justifyContent: 'right', width: '15%', float: 'left', display: 'inline', textAlign: 'right'}}>
-                    <h4>
-                        {userPlayer?.current_song?.album}
-                    </h4>
+                <Box sx={{justifyContent: 'center', width: '25%', float: 'left', display: 'inline', textAlign: 'center'}}>
+                    <h6 style={{marginBlockEnd: 0}}>Listening on</h6><h4 style={{marginBlockStart: 0}}>{userPlayer?.device?.name}</h4>
                 </Box>
             </Item>
         </div>

@@ -64,6 +64,9 @@
     .songName{
         margin-block-start: 0;
     }
+    .playerArtist{
+        display: none;
+    }
 }
 
 

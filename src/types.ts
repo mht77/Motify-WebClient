@@ -18,6 +18,7 @@ export type UserPlayer = {
     current_song?: Song,
     state: State,
     device?: Device,
+    second: number,
 }
 
 export enum State {

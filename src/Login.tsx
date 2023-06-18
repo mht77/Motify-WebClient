@@ -59,6 +59,7 @@ const Login = (props: AuthProps) => {
                         size={"large"}
                         onSuccess={googleLogin}
                         onError={()=>setOpen(true)}
+                        useOneTap={true}
                     />
                 </GoogleOAuthProvider>
             </Button>
