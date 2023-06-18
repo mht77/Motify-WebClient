@@ -3,6 +3,7 @@ import {Alert, Button, Snackbar, TextField} from "@mui/material";
 import {validateEmail, AuthProps} from "./Auth";
 import {axiosClient} from "./axiosClient";
 import {GoogleLogin, GoogleOAuthProvider} from "@react-oauth/google";
+import {getUserPlayerToken} from "./APIs";
 
 const Login = (props: AuthProps) => {
     const [open, setOpen] = React.useState(false);
@@ -19,13 +20,14 @@ const Login = (props: AuthProps) => {
         setOpen(false);
     };
 
-    const setToken = (token: string) => {
+    const setToken = async (token: string) => {
         localStorage.setItem('token', token);
+        await getUserPlayerToken().catch((err) => console.log(err));
         props.setLoggedIn(true);
     }
 
     const login = async () => {
-        await axiosClient.post('token/', {'username': email, password}).then(res => {
+        await axiosClient.post('token/', {'email': email, password}).then(res => {
             if (res.status === 200) {
                setToken(res.data.access);
             }
@@ -44,11 +46,11 @@ const Login = (props: AuthProps) => {
 
     return (
         <div>
-            <TextField error={erEmail} onChange={(e) => onEmailChange(e.target.value)}
+            <TextField id='login-email' error={erEmail} onChange={(e) => onEmailChange(e.target.value)}
                        sx={style} variant='outlined' label='Email' type='email'/> <br/><br/>
-            <TextField sx={style} onChange={(e)=>setPassword(e.target.value)}
+            <TextField id='login-pass' sx={style} onChange={(e)=>setPassword(e.target.value)}
                        variant='outlined' label='Password' type='password'/> <br/><br/>
-            <Button variant='contained' onClick={()=>login()}> Login </Button><br/><br/>
+            <Button id='login-btn' variant='contained' onClick={()=>login()}> Login </Button><br/><br/>
             <Button>
                 <GoogleOAuthProvider clientId={process.env.REACT_APP_CLIENT_ID!.toString()}>
                     <GoogleLogin
@@ -57,6 +59,7 @@ const Login = (props: AuthProps) => {
                         size={"large"}
                         onSuccess={googleLogin}
                         onError={()=>setOpen(true)}
+                        useOneTap={true}
                     />
                 </GoogleOAuthProvider>
             </Button>

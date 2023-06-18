@@ -2,6 +2,7 @@ import React from 'react';
 import {Alert, Button, Snackbar, TextField} from "@mui/material";
 import {AuthProps, validateEmail} from "./Auth";
 import {axiosClient} from "./axiosClient";
+import {getUserPlayerToken} from "./APIs";
 
 const Register = (props: AuthProps) => {
     const [open, setOpen] = React.useState(false);
@@ -51,8 +52,9 @@ const Register = (props: AuthProps) => {
 
     const register = async () => {
         await axiosClient.post('user/', {email, password}).then(async () => {
-            await axiosClient.post('token/', {'username': email, password}).then(res => {
+            await axiosClient.post('token/', {'email': email, password}).then(res => {
                 localStorage.setItem('token', res.data.access);
+                getUserPlayerToken().catch((err) => console.log(err));
                 props.setLoggedIn(true);
             })
         }).catch(err => {
@@ -65,13 +67,13 @@ const Register = (props: AuthProps) => {
 
     return (
         <div>
-            <TextField sx={props.sx} error={errEmail} onChange={(e)=>onEmailChange(e.target.value)}
+            <TextField id='register-email' sx={props.sx} error={errEmail} onChange={(e)=>onEmailChange(e.target.value)}
                        variant='outlined' label='Email' type='email'/> <br/><br/>
-            <TextField sx={props.sx} onChange={(e)=>onPassChange(e.target.value)}
+            <TextField id='register-pass' sx={props.sx} onChange={(e)=>onPassChange(e.target.value)}
                        variant='outlined' label='Password' type='password'/> <br/><br/>
-            <TextField sx={props.sx} error={errPass} onChange={(e)=>checkPass(e.target.value)}
+            <TextField id='register-repeat' sx={props.sx} error={errPass} onChange={(e)=>checkPass(e.target.value)}
                        variant='outlined' label='Repeat' type='password'/> <br/><br/>
-            <Button disabled={errEmail || errPass || password===''} variant='contained' onClick={register}> Register </Button>
+            <Button id='register-btn' disabled={errEmail || errPass || password===''} variant='contained' onClick={register}> Register </Button>
             <Snackbar
                 anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
                 open={open}

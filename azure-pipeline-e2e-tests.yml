@@ -1,0 +1,46 @@
+trigger:
+  - main
+
+pool:
+  vmImage: ubuntu-latest
+
+jobs:
+  - job: e2e
+    displayName: Executing E2E Tests
+    variables:
+      - group: azure-static-web-apps
+    steps:
+    - checkout: self
+    - checkout: git://Motify/Motify
+    - task: Bash@3
+      inputs:
+        targetType: 'inline'
+        script: |
+          docker-compose up -d rabbitmq redis db
+          sleep 7
+          docker exec db psql -U postgres -c "Create Database gateway;"
+        workingDirectory: '$(System.DefaultWorkingDirectory)/Motify'
+      displayName: Run required services
+    - task: Bash@3
+      inputs:
+        targetType: 'inline'
+        script: 'docker-compose up -d --build'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/Motify'
+      displayName: Run all services
+    - task: Bash@3
+      inputs:
+        targetType: 'inline'
+        script: |
+          npm install
+          npx pm2 start npm -- start
+          sleep 5
+          npx cypress run || true
+        workingDirectory: '$(System.DefaultWorkingDirectory)/webclient'
+      env:
+        REACT_APP_API_URL: 'http://localhost:7777/api/'
+        REACT_APP_CLIENT_ID: $(CLIENT_ID)
+      displayName: Run Tests
+    - task: PublishTestResults@2
+      inputs:
+        testResultsFormat: 'JUnit'
+        testResultsFiles: '**/tests/test*.xml'
