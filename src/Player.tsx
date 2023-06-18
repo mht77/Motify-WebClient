@@ -60,7 +60,9 @@ const Player = (props: playerProps) => {
     }, [lastMessage]);
 
     useEffect(() => {
-        audio.current.src = getFileUrl(userPlayer);
+        let file = getFileUrl(userPlayer)
+        if (file === null || file === undefined) return;
+        audio.current.src = file;
         if (audio.current.currentTime === 0 && userPlayer?.second !== 0) {
             audio.current.currentTime = userPlayer?.second;
             setPercent(userPlayer?.second / audio.current.duration * 100);

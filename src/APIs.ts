@@ -80,9 +80,8 @@ export const addSongToPlaylist = async (playlistId: string, songs: string[]) => 
 
 export const getFileUrl = (userPlayer: UserPlayer) => {
     if (process.env.NODE_ENV === 'development') {
-        if (userPlayer?.current_song === undefined) return '';
-        return `http://${process.env.REACT_APP_PLAYER_URL}${userPlayer.current_song.file}`;
+        return `http://${process.env.REACT_APP_PLAYER_URL}${userPlayer.current_song?.file}`;
     } else {
-        return userPlayer.current_song === undefined ? '' : userPlayer?.current_song.file;
+        return userPlayer?.current_song?.file;
     }
 }
